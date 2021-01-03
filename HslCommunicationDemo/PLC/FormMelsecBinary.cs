@@ -75,15 +75,7 @@ namespace HslCommunicationDemo
 
 		private async void button1_Click( object sender, EventArgs e )
 		{
-			// 连接
-			if (!System.Net.IPAddress.TryParse( textBox1.Text, out System.Net.IPAddress address ))
-			{
-				MessageBox.Show( DemoUtils.IpAddressInputWrong );
-				return;
-			}
-
 			melsec_net.IpAddress = textBox1.Text;
-
 			if (!int.TryParse( textBox2.Text, out int port ))
 			{
 				MessageBox.Show( DemoUtils.PortInputWrong );
@@ -275,13 +267,13 @@ namespace HslCommunicationDemo
 			button3.Enabled = false;
 		}
 
-		private void thread_test2( )
+		private async void thread_test2( )
 		{
 			int count = 500;
 			while (count > 0)
 			{
-				if (!melsec_net.Write( "D100", (short)1234 ).IsSuccess) failed++;
-				if (!melsec_net.ReadInt16( "D100" ).IsSuccess) failed++;
+				if (!(await melsec_net.WriteAsync( "D100", (short)1234 ) ).IsSuccess) failed++;
+				if (!(await melsec_net.ReadInt16Async( "D100" ) ).IsSuccess) failed++;
 				count--;
 			}
 			thread_end( );

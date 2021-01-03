@@ -35,20 +35,20 @@ namespace HslCommunicationDemo
 
 		private void SetUpdayeInfo( )
 		{
-			textBox1.Text = @"V9.5.0
-1. AllenBradleyNet: ReadBool方法默认读取单bool类型变量，如果要读取int类型的bool数组，采用""i=""开头表示，例如""i=A[10]""
-2. NetworkDataServerBase: 新增一个属性ActiveTimeSpan，可以设置激活时间间隔，默认24小时，锁优化，其他的继承实现的服务器都进行了设置。
-3. NetworkDeviceBase: Read<T>修改为虚方法，支持继承进行重写，基于特性的类注释完善。
-4. Siemenss7net: ReadString(string address, ushort length)读取字符串时，如果长度为0，就读取西门子格式的字符串。
-5. OperateResult: 扩充泛型方法，Check, Convert, Then，实现了结果链，简化代码。参考：https://www.cnblogs.com/dathlin/p/13863115.html
-6. FanucSeries0i: 修复数控机床在读取0i-mf状态时导致长度不够的bug。
-7. IReadWriteNet: 新增wait方法接口，用于等待一些信号到达指定的值，支持扫描频率设置，超时设置。例如 Wait(""M100.0"", true, 500, 10000)等待这个信号为true为止。
-8. MqttServer: 支持调用ReportOperateResult返回错误信息及错误码给客户端，MqttSyncClient会自动识别报文，然后IsSuccess自动适应，网络不会断开。
-9. MqttSyncClient: 支持设置接收超时时间，默认是60秒，之前是5秒，而且不能更改。
-10. MqttServer: 支持注册远程RPC的API接口，自动解析json参数，自动调用已经注册的接口自动返回是否成功，MqttSyncClient也支持遍历服务器的接口列表。详细：https://www.cnblogs.com/dathlin/p/13864866.html
-11. SiemensS7Net: 通信类实现ReadBool(""M100"", 10); 批量读bool方法，通过读Byte间接实现。
-12. OmronHostLinkCModeOverTcp: 新增欧姆龙的通讯类，Cmode模式的以太网透传实现。
-13. PLC: 所以的PLC实现了HslMqttApi特性支持，从而在MqttServer里可以直接注册，然后对外开放读写接口操作。
+			textBox1.Text = @"V9.6.0
+1. YokogawaLink: 异步的方法添加和完善，虚拟PLC侧支持Special:100开头的地址，表示特殊模块寄存器，从而支持各种类型的读写。
+2. LogStatistics, LogValueLimit: 两个数据日志分析类支持获取指定时间段的数据，数据存储文件格式重新设计，为不兼容更新。
+3. LogStatisticsDict, LogValueLimitDict: 新增数据日志分析的词典类，用来统计多个数据的不同时间段的使用情况。
+4. 所有的基于tcp的plc，机器人，redis, mqtt, websocket等通讯类的ip地址支持直接输入域名，会自动调用Dns.GetIpAddress来解析。
+5. MqttRpcApi: MRpc的API特性支持应用在属性上，不需要传递参数，直接获取属性的值，在demo上显示的小图标不一样。PLC的通讯类的基本属性在MRPC公开。
+6. MelsecFxLinks: 支持读取PLC的型号，读写数据的地址支持了站号指定，地址可以写成[s=2;D100]，方便多站号读取。
+7. AllenBradleyNet: 地址支持slot参数，例如：slot=2;AAA ，也可以不携带，这个是可选的
+8. FatekProgram, FujiSPB, XGBCnet, MelsecA3CNet1, OmronHostLink, OmronHostLinkCMode, PanasonicMewtocol, SiemensPPI，信捷，汇川类及其透传类支持地址携带站号，例如 s=2;D100
+9. FujiSPBServer: 新增富士PLC的虚拟服务器，支持串口和网口，原先的富士PLC存在bug，不能读取，欢迎网友对富士PLC测试。
+10. HttpServer: 删除原先的HttpGet和HttpPost特性，改用MRPC的特性，支持注册webapi服务，使用方式和MRPC类似，demo增加httpsclient可浏览接口，https://www.cnblogs.com/dathlin/p/14170802.html
+11. HttpServer, MqttServer: 服务器端支持接口调用的次数统计，支持客户端查询接口调用情况，demo客户端实现mqttclient,方便服务器管理在线客户端信息。
+12. 其他优化改进，如果有网友发现bug，配合作者测试并修复bug，将根据实际情况给与现金红包奖励。
+13. 普通VIP的个人使用不再限制100个PLC对象，连续运行时间调整为10年，高级的一些API限制商用，参考注释是否带[商业授权]字样。
 14. 官网地址： http://www.hslcommunication.cn/ 官网的界面全新设计过，感谢浏览关注。
 15. 本软件已经申请软件著作权，软著登字第5219522号，任何盗用软件，破解软件，未经正式合同授权而商业使用均视为侵权。";
 		}

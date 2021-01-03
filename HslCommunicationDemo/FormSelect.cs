@@ -60,6 +60,9 @@ namespace HslCommunicationDemo
 			imageList.Images.Add( "zkt",                   Properties.Resources.zkt );               // 27
 			imageList.Images.Add( "websocket",             Properties.Resources.websocket );         // 28
 			imageList.Images.Add( "yaskawa",               Properties.Resources.yaskawa );           // 29
+			imageList.Images.Add( "xinje",                 Properties.Resources.xinje );             // 30
+			imageList.Images.Add( "yokogawa",              Properties.Resources.yokogawa );          // 31
+			imageList.Images.Add( "delta",                 Properties.Resources.delta );             // 32
 
 
 			treeView1.ImageList = imageList;
@@ -134,6 +137,7 @@ namespace HslCommunicationDemo
 			label1.Text = $"Thread:{NetworkBase.ThreadPoolTimeoutCheckCount}  Lock:{SimpleHybirdLock.SimpleHybirdLockCount}  Wait:{SimpleHybirdLock.SimpleHybirdLockWaitCount}";
 		}
 
+		private HslCommunication.MQTT.MqttClient mqttClient;
 		private System.Windows.Forms.Timer timer;
 		private Process cur = null;
 		private PerformanceCounter curpcp = null;
@@ -247,6 +251,13 @@ namespace HslCommunicationDemo
 		private void ThreadPoolCheckVersion( object obj )
 		{
 			System.Threading.Thread.Sleep( 100 );
+			mqttClient = new HslCommunication.MQTT.MqttClient( new HslCommunication.MQTT.MqttConnectionOptions( )
+			{
+				IpAddress = "118.24.36.220",
+				Port = 1883,
+				ClientId = "HslDemo"
+			} );
+			mqttClient.ConnectServer( );
 			HslCommunication.Enthernet.NetSimplifyClient simplifyClient = new HslCommunication.Enthernet.NetSimplifyClient( "118.24.36.220", 18467 );
 			HslCommunication.OperateResult<HslCommunication.NetHandle, string> read = simplifyClient.ReadCustomerFromServer( 1, HslCommunication.BasicFramework.SoftBasic.FrameworkVersion.ToString( ) );
 			if (read.IsSuccess)
@@ -279,7 +290,7 @@ namespace HslCommunicationDemo
 				cur = Process.GetCurrentProcess( );
 				curpcp = new PerformanceCounter( "Process", "Working Set - Private", cur.ProcessName );
 			}
-			catch (Exception ex)
+			catch
 			{
 
 			}
@@ -349,6 +360,7 @@ namespace HslCommunicationDemo
 			siemensNode.Nodes.Add( GetTreeNodeByIndex( "PPI OverTcp",        14, typeof( FormSiemensPPIOverTcp ) ) );
 			siemensNode.Nodes.Add( GetTreeNodeByIndex( "MPI",                14, typeof( FormSiemensMPI ) ) );
 			siemensNode.Nodes.Add( GetTreeNodeByIndex( "S7 Virtual Server",  14, typeof( FormS7Server ) ) );
+			siemensNode.Nodes.Add( GetTreeNodeByIndex( "Fetch Write Server", 14, typeof( FormFetchWriteServer ) ) );
 			treeView1.Nodes.Add( siemensNode );
 
 			// Modbus协议
@@ -391,6 +403,8 @@ namespace HslCommunicationDemo
 			lsisNode.Nodes.Add( GetTreeNodeByIndex( "XGB Fast Enet",       7, typeof( FormLsisFEnet ) ) );
 			lsisNode.Nodes.Add( GetTreeNodeByIndex( "XGB Cnet",            7, typeof( FormLsisCnet ) ) );
 			lsisNode.Nodes.Add( GetTreeNodeByIndex( "XGB Cnet OverTcp",    7, typeof( FormLsisCnetOverTcp ) ) );
+			lsisNode.Nodes.Add( GetTreeNodeByIndex( "XGK Cnet",            7, typeof( FormLsisXGKCnet ) ) );
+			lsisNode.Nodes.Add( GetTreeNodeByIndex( "XGK Fast Enet",       7, typeof( FormLsisXGKFEnet ) ) );
 			lsisNode.Nodes.Add( GetTreeNodeByIndex( "LSis Virtual Server", 7, typeof( FormLSisServer ) ) );
 			treeView1.Nodes.Add( lsisNode );
 
@@ -400,6 +414,7 @@ namespace HslCommunicationDemo
 			keyencePlc.Nodes.Add( GetTreeNodeByIndex( "MC-3E (ASCII)",         6, typeof( FormKeyenceAscii ) ) );
 			keyencePlc.Nodes.Add( GetTreeNodeByIndex( "Nano (ASCII)",          6, typeof( FormKeyenceNanoSerial ) ) );
 			keyencePlc.Nodes.Add( GetTreeNodeByIndex( "Nano OverTcp",          6, typeof( FormKeyenceNanoSerialOverTcp ) ) );
+			keyencePlc.Nodes.Add( GetTreeNodeByIndex( "SR2000 [读码]",         6, typeof( FormKeyenceSR2000 ) ) );
 			treeView1.Nodes.Add( keyencePlc );
 
 			// Panasonic PLC
@@ -433,12 +448,26 @@ namespace HslCommunicationDemo
 			TreeNode fujiNode = new TreeNode( "Fuji Plc[富士]", 2, 2 );
 			fujiNode.Nodes.Add( GetTreeNodeByIndex( "SPB [编程口]", 2, typeof( FormFujiSPB ) ) );
 			fujiNode.Nodes.Add( GetTreeNodeByIndex( "SPB OverTcp", 2, typeof( FormFujiSPBOverTcp ) ) );
+			fujiNode.Nodes.Add( GetTreeNodeByIndex( "SPB Server", 2, typeof( FormFujiSPBServer ) ) );
 			treeView1.Nodes.Add( fujiNode );
 
-			// Knx
-			TreeNode knxNode = new TreeNode( "Knx" );
-			knxNode.Nodes.Add( new TreeNode( "Knx" )  { Tag = typeof( PLC.FormKnx ) } );
-			treeView1.Nodes.Add( knxNode );
+			// XinJE Plc
+			TreeNode xinjeNode = new TreeNode( "XinJE Plc[信捷]", 30, 30 );
+			xinjeNode.Nodes.Add( GetTreeNodeByIndex( "XinJE XC Serial", 30, typeof( FormXinJEXCSerial ) ) );
+			treeView1.Nodes.Add( xinjeNode );
+
+			// Yokogawa Plc
+			TreeNode YokogawaNode = new TreeNode( "Yokogawa Plc[横河]", 31, 31 );
+			YokogawaNode.Nodes.Add( GetTreeNodeByIndex( "Yokogawa Link Tcp", 31, typeof( FormYokogawaLinkTcp ) ) );
+			YokogawaNode.Nodes.Add( GetTreeNodeByIndex( "Yokogawa Link Server", 31, typeof( FormYokogawaLinkServer ) ) );
+			treeView1.Nodes.Add( YokogawaNode );
+
+			// delta Plc
+			TreeNode deltaNode = new TreeNode( "Delta Plc[台达]", 32, 32 );
+			deltaNode.Nodes.Add( GetTreeNodeByIndex( "Dvp Serial", 32, typeof( FormDeltaDvpSerial ) ) );
+			deltaNode.Nodes.Add( GetTreeNodeByIndex( "Dvp Serial Ascii", 32, typeof( FormDeltaDvpSerialAscii ) ) );
+			deltaNode.Nodes.Add( GetTreeNodeByIndex( "Dvp Tcp Net", 32, typeof( FormDeltaDvpTcpNet ) ) );
+			treeView1.Nodes.Add( deltaNode );
 
 			// 身份证阅读器
 			TreeNode idNode = new TreeNode( "ID Card[身份证]", 4, 4 );
@@ -467,6 +496,12 @@ namespace HslCommunicationDemo
 			wsNode.Nodes.Add( GetTreeNodeByIndex( "WebSocket Server", 28, typeof( FormWebsocketServer ) ) );
 			wsNode.Nodes.Add( GetTreeNodeByIndex( "WebSocket QANet",  28, typeof( FormWebsocketQANet ) ) );
 			treeView1.Nodes.Add( wsNode );
+
+			// HttpWeb 相关
+			TreeNode httpNode = new TreeNode( "Http", 0, 0 );
+			httpNode.Nodes.Add( GetTreeNodeByIndex( "Http Web Server", 0, typeof( FormHttpServer ) ) );
+			httpNode.Nodes.Add( GetTreeNodeByIndex( "Http Web Client", 0, typeof( FormHttpClient ) ) );
+			treeView1.Nodes.Add( httpNode );
 
 			// Robot 相关
 			TreeNode robotNode = new TreeNode( "Robot[机器人]", 19, 19 );
@@ -502,6 +537,7 @@ namespace HslCommunicationDemo
 			debugNode.Nodes.Add( GetTreeNodeByIndex( "Serial [串口调试]", 15, typeof( FormSerialDebug ) ) );
 			debugNode.Nodes.Add( GetTreeNodeByIndex( "Tcp/Ip Client [网口调试]", 15, typeof( FormTcpDebug ) ) );
 			debugNode.Nodes.Add( GetTreeNodeByIndex( "Tcp/Ip Server [网口调试]", 15, typeof( FormTcpServer ) ) );
+			debugNode.Nodes.Add( GetTreeNodeByIndex( "Serial2Tcp [串口转网口]", 15, typeof( FormSerialToTcp ) ) );
 			debugNode.Nodes.Add( GetTreeNodeByIndex( "Bytes Data [数据调试]", 15, typeof( FormByteTransfer ) ) );
 			debugNode.Nodes.Add( GetTreeNodeByIndex( "Mail [邮件调试]", 15, typeof( FormMail ) ) );
 			debugNode.Nodes.Add( GetTreeNodeByIndex( "Order Number [订单号调试]", 15, typeof( FormSeqCreate ) ) );
@@ -519,7 +555,6 @@ namespace HslCommunicationDemo
 			hslNode.Nodes.Add( GetTreeNodeByIndex( "Push Net [消息推送]", 3, typeof( FormPushNet ) ) );
 			hslNode.Nodes.Add( GetTreeNodeByIndex( "SoftUpdate [软件更新]", 3, typeof( FormUpdateServer ) ) );
 			hslNode.Nodes.Add( GetTreeNodeByIndex( "Plain Net [明文交互]", 3, typeof( FormPlainSocket ) ) );
-			hslNode.Nodes.Add( GetTreeNodeByIndex( "Http Web", 3, typeof( FormHttpServer ) ) );
 			hslNode.Nodes.Add( GetTreeNodeByIndex( "Dtu Server[DTU服务器]", 3, typeof( FormDtuServer ) ) );
 			treeView1.Nodes.Add( hslNode );
 
@@ -558,7 +593,9 @@ namespace HslCommunicationDemo
 
 			// 其他界面
 			TreeNode othersNode = new TreeNode( "Special [特殊协议]" );
-			othersNode.Nodes.Add( new TreeNode( "Open Protocol" ) { Tag = typeof( FormOpenProtocol ) } );
+			othersNode.Nodes.Add( new TreeNode( "Open Protocol"   ) { Tag = typeof( FormOpenProtocol ) } );
+			othersNode.Nodes.Add( new TreeNode( "南京自动化 DCS"  ) { Tag = typeof( FormDcsNanJingAuto ) } );
+			othersNode.Nodes.Add( new TreeNode( "Knx"             ) { Tag = typeof( PLC.FormKnx ) } );
 			treeView1.Nodes.Add( othersNode );
 
 			// treeView1.ExpandAll( );
@@ -749,6 +786,10 @@ namespace HslCommunicationDemo
 			}
 		}
 
+		private void FormSelect_FormClosing( object sender, FormClosingEventArgs e )
+		{
+			mqttClient?.ConnectClose( );
+		}
 	}
 
 	public class FormSiemensS1200 : FormSiemens
